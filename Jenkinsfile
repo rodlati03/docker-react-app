@@ -1,10 +1,10 @@
 pipeline {
-agent { dockerfile true }
+agent any
 
 stages{
 	stage("Test Dockerfile"){
 		steps {
-			bat 'Hello World'
+			sh 'Hello World'
 		}
 	}
 }
