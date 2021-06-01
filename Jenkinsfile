@@ -1,12 +1,12 @@
 pipeline {
-agent any
+    agent any
 
-stages{
+    stages{
 	stage("Test Dockerfile"){
 		steps {
 			sh 'Hello World'
 		}
 	}
-}
+     }
 
 }
