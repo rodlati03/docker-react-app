@@ -24,7 +24,9 @@ pipeline {
         }
     	stage("Test Dockerfile"){
     		steps {
-    			sh 'echo "Hello World"'
+    			sh '''
+					docker-compose up -d --build
+				'''
     		}
     	}
      }
