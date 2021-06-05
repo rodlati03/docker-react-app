@@ -15,8 +15,8 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     volumes:
-      - /app/node_modules
-      - .:/app
+      #- /app/node_modules
+      - .:/app/
     ports:
       - "2000:3000"
     command: ["npm", "run", "test"]
