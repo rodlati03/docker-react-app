@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages{
-        stage("preparation"){
+        stage("Develop preparation"){
             
             steps {
                 
@@ -20,15 +20,33 @@ pipeline {
                         submoduleCfg: [],
                         userRemoteConfigs: scm.userRemoteConfigs
                 ]
+				
             }
         }
-    	stage("Test Dockerfile"){
+    	stage("Test docker app"){
     		steps {
     			sh '''
+					echo "******** Docker Test BUILD ******** "
 					docker-compose up -d --build
 				'''
     		}
     	}
+		stage("Deploy preparation"){
+			steps{
+				sh '''
+					echo "********** Docker PROD BUILD **********"
+					docker build -t rodlati03/docker-app-prod .
+				'''
+			}
+		}
+		
+		stage("Deploy docker app"){
+			steps{
+				sh '''
+					docker run -p 5000:80 rodlati03/docker-app-prod npm run test -- --coverage
+				'''
+			}
+		}
      }
 
 }
