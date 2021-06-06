@@ -43,7 +43,7 @@ pipeline {
 		stage("Deploy docker app"){
 			steps{
 				sh '''
-					docker run -p 5000:80 rodlati03/docker-app-prod npm run test -- --coverage
+					docker --name docker-prod-container run -p 5000:80 rodlati03/docker-app-prod
 				'''
 			}
 		}
