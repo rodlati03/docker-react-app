@@ -26,16 +26,27 @@ pipeline {
     	stage("Test docker app"){
     		steps {
     			sh '''
-					echo "******** Docker Test BUILD ******** "
-					docker-compose up -d --build
+					echo "************* Check if docker-compose test is UP or DOWN *********** "
+					IS_DOCKER_COMPOSE_UP=$(docker-compose ps|grep -i up|wc -l)
+					if [ $IS_DOCKER_COMPOSE_UP -gt 0 ]
+					then 
+						echo "------ Docker compose is UP, trying to get it down --------- "
+						docker-compose down
+					fi					
+						echo "******** Docker Test BUILD ******** "						
+						docker-compose up -d --build
 				'''
     		}
     	}
 		stage("Deploy preparation"){
 			steps{
 				sh '''
-					echo "********** Docker PROD BUILD **********"
-					docker build -t rodlati03/docker-app-prod .
+					#IS_DOCKER_IMAGE_EXISTS=$(docker images | grep -i docker-app-prod | wc -l)
+					#if [ $IS_DOCKER_IMAGE_EXISTS -eq 0 ]
+					#then 
+							echo "********** Docker PROD BUILD **********"
+							docker build -t rodlati03/docker-app-prod .
+					#fi				
 				'''
 			}
 		}
