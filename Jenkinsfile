@@ -34,7 +34,8 @@ pipeline {
 						docker-compose down
 					fi					
 						echo "******** Docker Test BUILD ******** "						
-						docker-compose up -d --build
+						#docker-compose up -d --build
+						docker build -t rodlati03/docker-react -f Dockerfile.dev .
 				'''
     		}
     	}
@@ -45,7 +46,8 @@ pipeline {
 					#if [ $IS_DOCKER_IMAGE_EXISTS -eq 0 ]
 					#then 
 							echo "********** Docker PROD BUILD **********"
-							docker build -t rodlati03/docker-app-prod .
+							#docker build -t rodlati03/docker-app-prod .
+							
 					#fi				
 				'''
 			}
@@ -54,7 +56,8 @@ pipeline {
 		stage("Deploy docker app"){
 			steps{
 				sh '''
-					docker --name docker-prod-container run -p 5000:80 rodlati03/docker-app-prod
+					#docker --name docker-prod-container run -p 5000:80 rodlati03/docker-app-prod
+					docker run rodlati03/docker-react npm run test -- --coverage
 				'''
 			}
 		}
