@@ -1,66 +1,35 @@
 pipeline {
-    agent any
-
-    stages{
-        stage("Develop preparation"){
-            
-            steps {
-                
-                     // GIT submodule recursive checkout
-                checkout scm: [
-                        $class: 'GitSCM',
-                        branches: scm.branches,
-                        doGenerateSubmoduleConfigurations: false,
-                        extensions: [[$class: 'SubmoduleOption',
-                                      disableSubmodules: false,
-                                      parentCredentials: false,
-                                      recursiveSubmodules: true,
-                                      reference: '',
-                                      trackingSubmodules: false]],
-                        submoduleCfg: [],
-                        userRemoteConfigs: scm.userRemoteConfigs
-                ]
+    agent { label 'Linux' }
+	environment {
+		BUCKET_ROOT = 'elasticbeanstalk-us-east-2-806855832725'
+		BUCKET_DOCKER_APP = 'elasticbeanstalk-us-east-2-806855832725/docker-app'
+		docker_app_folder = ''
+	}
+    stages {
+        stage("Git Check out"){
 				
+				steps {
+					
+					git credentialsId: 'Github', url: 'git@github.com:rodlati03/docker-react-app.git'
+				}
+			}
+        stage('Creating archive Folder') {
+            steps{
+                sh '''
+                    # remove zip file if it's found
+                    if [ -f docker-app.zip ];then rm docker-app.zip;fi
+                    echo "************ Archive the project into ZIP file ************"
+                    #apt install zip -y
+                    #zip -r docker-app.zip ${WORKSPACE}
+                '''  
             }
         }
-    	stage("Test docker app"){
-    		steps {
-    			sh '''
-					echo "************* Check if docker-compose test is UP or DOWN *********** "
-					IS_DOCKER_COMPOSE_UP=$(docker-compose ps|grep -i up|wc -l)
-					if [ $IS_DOCKER_COMPOSE_UP -gt 0 ]
-					then 
-						echo "------ Docker compose is UP, trying to get it down --------- "
-						docker-compose down
-					fi					
-						echo "******** Docker Test BUILD ******** "						
-						#docker-compose up -d --build
-						docker build -t rodlati03/docker-react -f Dockerfile.dev .
-				'''
-    		}
-    	}
-		stage("Deploy preparation"){
-			steps{
-				sh '''
-					#IS_DOCKER_IMAGE_EXISTS=$(docker images | grep -i docker-app-prod | wc -l)
-					#if [ $IS_DOCKER_IMAGE_EXISTS -eq 0 ]
-					#then 
-							echo "********** Docker PROD BUILD **********"
-							#docker build -t rodlati03/docker-app-prod .
-							
-					#fi				
-				'''
-			}
-		}
 		
-		stage("Deploy docker app"){
-			steps{
-				sh '''
-					#docker --name docker-prod-container run -p 5000:80 rodlati03/docker-app-prod
-					docker run rodlati03/docker-react npm run test -- --coverage
-				'''
-			}
-		}
-     }
-
+        
+    }
+    post {
+        success {
+            archiveArtifacts artifacts: '**/*', followSymlinks: false
+         }
+    }
 }
